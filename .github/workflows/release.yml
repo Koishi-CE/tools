@@ -47,7 +47,7 @@ jobs:
     steps:
       # persist-credentials: false：默认行为会把 GITHUB_TOKEN 持久化到 .git/config，
       # 与后面显式推送 URL 里的 token 争同一个 Authorization 头。
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false

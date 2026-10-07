@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       # CI 环境下 bun install 自动 frozen-lockfile（锁文件与 package.json 不一致即失败）。
       - run: bun install
