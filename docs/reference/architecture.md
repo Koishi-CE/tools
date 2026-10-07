@@ -67,6 +67,17 @@ tools/
 `require("url").pathToFileURL(__filename).href`（market-tracker 的 `render.ts` 即此写法，
 两种产物均已实测可定位到 `lib/template.html`）。
 
+### 实测结论（官方 koishi 4.18.11 + Node 24，干净环境）
+
+| 加载方式 | 结果 |
+| --- | --- |
+| `require("koishi-plugin-*")` → `lib/index.cjs` | ✅ 正常，导出面齐备（`Config` / `apply` / `name` / `usage`），market-tracker 亦能定位到 `lib/template.html` |
+| `import("koishi-plugin-*")` → `lib/index.mjs` | ❌ 失败，但**根因在 koishi 上游**：`@koishijs/loader` 的 ESM 入口报 `TypeError: Class extends value #<Object> is not a constructor or null`（CJS / ESM 双包危害，官方包自身的问题，与本仓产物无关） |
+
+**这是 `default` 兜底指向 `.cjs` 的原因**：Node 侧当前唯一可靠的路径是 CJS，`.mjs` 的
+实际使用方是 Bun（Koishi-CE 宿主）与打包器。若将来官方 koishi 修掉 ESM 链的双包危害，
+可重新评估是否把 `default` 让给 `.mjs`。
+
 ## 4. 包布局
 
 每个包是自洽的一层，构建配置**按包隔离**（根不做统一构建配置）：

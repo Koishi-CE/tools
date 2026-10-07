@@ -101,6 +101,10 @@ bun run build     # 按包构建（产物 packages/*/lib）
   不装 peer 就做不了类型检查（本仓 `koishi` 即在两处都声明）。
 - **`readme.md` 的大小写在 Windows 上不可见**（git 索引里是小写），Linux / macOS
   检出的工具会踩；改名用 `git mv -f` 并在 `git ls-files` 里核实。
+- **官方 koishi 的 ESM 链有双包危害**：`import()` 我们的 `.mjs` 产物时会因
+  `@koishijs/loader` 报 `Class extends value #<Object> is not a constructor` 而失败
+  （koishi 上游问题，与产物无关）。Node 侧请走 CJS（`require`）——这也是
+  `exports.default` 指向 `.cjs` 的原因，详见 [architecture.md](../reference/architecture.md) 第 3 节。
 - **`lib/` 是构建产物**，不进 git（见根 `.gitignore`），发布时由 `files` 字段带上。
 
 ## 7. 索引与工具
