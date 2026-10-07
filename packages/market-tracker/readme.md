@@ -30,6 +30,9 @@
 
 - [koishi](https://koishi.chat/) ^4.18.7
 - `koishi-plugin-puppeteer`（可选，缺失时回退纯文本推送）
+  - 这是 `optional` peer：安装本插件**不会**自动把它装进来，需要图片渲染时自行安装；
+  - Koishi-CE 宿主可改用 `@koishi-ce/plugin-puppeteer`——本插件按服务名 `puppeteer`
+    取用，不区分实现来源。
 
 ## 特别鸣谢
 

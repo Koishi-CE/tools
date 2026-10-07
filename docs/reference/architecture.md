@@ -99,6 +99,11 @@ Turborepo，也不引入根级统一构建**：两个包的构建整轮是秒级
 
 - **peer 只声明官方 `koishi`**：本仓面向通用 Koishi 宿主，peer 不得写 `@koishi-ce/koishi`；
   平台相关依赖也走 peer（`koishi-plugin-adapter-onebot` / `koishi-plugin-puppeteer`）。
+- **能力可选的 peer 必须标 `peerDependenciesMeta.optional`**：包管理器（npm 7+ / Bun）会自动
+  安装未满足的 peer——不标 optional，宿主会凭空多出那个官方包及其依赖树。`market-tracker`
+  的 `koishi-plugin-puppeteer` 即此例（`inject.optional` + 缺失回退纯文本），官方宿主里
+  装不装图片渲染应由用户决定，Koishi-CE 宿主里更是只该装 `@koishi-ce/plugin-puppeteer`
+  （服务名同为 `puppeteer`，本仓不区分来源）。
 - **peer 同时下沉到 `devDependencies`**：CI 在独立检出上只跑 `bun install`，不装 peer
   就做不了类型检查与测试。两处版本保持一致。
 - **禁 `workspace:` / `file:` / `link:` 协议**：changesets 不改写这些协议，原样上 npm

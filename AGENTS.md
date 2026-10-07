@@ -10,6 +10,7 @@
 - **全程使用简体中文**：回复、代码注释、提交说明、文档均用简体中文。
 - **包名一律 `koishi-plugin-*`**：本仓不使用 `@koishi-ce` / `@koishijs` 作用域——包名必须能被任何 Koishi 用户直接安装。
 - **peer 一律指向官方 `koishi`**（`^4.18.7`），不得写 `@koishi-ce/koishi`；peer 同时下沉到 `devDependencies`（CI 在独立检出上只跑 `bun install`，不装 peer 就做不了类型检查）。
+- **能力可选的 peer 必须标 `peerDependenciesMeta.optional`**：否则包管理器会把那个官方包（连同其依赖树）自动装进每一个宿主——CE 宿主里这是凭空拉入官方包，官方宿主里也是替用户决定了装不装。
 - **只用 `node:*` 能力**：运行时代码、测试与 `tooling/**` 脚本一律 Node 内置模块；**不要引入 `bun:test` / `Bun.file` / `Bun.Glob` / `Bun.cron` 等 Bun 专有 API**（Bun 仅作包管理器与 `bun run` 运行器）。
 - **源码 ESM 写法，产物 CJS + ESM 双份**：源码不写 `__dirname` / `require`，产物出 `lib/index.cjs` + `lib/index.mjs` + `lib/index.d.ts`，由 `exports` 条件分流；资源定位统一用 `import.meta.url`。
 - **跨包依赖写 semver range，禁写 `workspace:` / `file:` / `link:`**：changesets 不改写这些协议，原样上 npm 会炸下游（发布链有终局断言拦截）。
