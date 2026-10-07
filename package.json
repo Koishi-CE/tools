@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@root/tools",
+  "version": "0.1.0",
+  "description": "一个 Koishi 插件集合",
+  "contributors": [
+    "Oppenheymu <oppenheymu@gmail.com>"
+  ],
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter './packages/*' build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset version && bun run --filter './packages/*' build && changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.10",
+    "@changesets/cli": "^2.31.1",
+    "@types/node": "^26.4.0",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "tsdown": "^0.22.14"
+  }
+}
