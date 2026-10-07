@@ -1,0 +1,20 @@
+commands:
+  market:
+    description: 插件市场信息
+    usage: |
+      market - 查看插件市场概览
+      market <name> - 查看指定插件详情
+    messages:
+      overview: 当前共有 {0} 个插件。
+      not-found: 未找到插件 {0}。
+      detail: |-
+        {name} ({version})
+        {manifest.description.zh || manifest.description.en}
+
+market-tracker:
+  title: 📦 插件市场更新
+  text-title: "[插件市场更新]"
+  added: 新增
+  updated: 更新
+  deleted: 删除
+  footer: 共 {0} 项变更 · Powered by Koishi

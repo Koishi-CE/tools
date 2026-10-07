@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: transparent;
+  }
+  .container {
+    width: 560px;
+    background: linear-gradient(180deg, #141824 0%, #0e1118 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ===== Header ===== */
+  .header {
+    padding: 32px 32px 26px;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 55%, #24243e 100%);
+    border-bottom: 1px solid rgba(129,140,248,0.28);
+  }
+  .header h1 {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 14px rgba(165,180,252,0.4);
+  }
+  .header .subtitle {
+    color: rgba(199,210,254,0.6);
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 8px;
+    letter-spacing: 3px;
+  }
+  .header .time {
+    color: rgba(255,255,255,0.65);
+    font-size: 12px;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== Stats ===== */
+  .stats {
+    display: flex;
+    gap: 12px;
+    padding: 16px 32px;
+    background: rgba(255,255,255,0.015);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+  .stat .dot { width: 10px; height: 10px; flex-shrink: 0; }
+  .stat.added .dot { background: #3fb950; box-shadow: 0 0 8px rgba(63,185,80,0.55); }
+  .stat.updated .dot { background: #58a6ff; box-shadow: 0 0 8px rgba(88,166,255,0.55); }
+  .stat.deleted .dot { background: #f85149; box-shadow: 0 0 8px rgba(248,81,73,0.55); }
+  .stat .count { margin-left: auto; font-size: 17px; font-weight: 800; line-height: 1; }
+  .stat.added .count { color: #56d364; }
+  .stat.updated .count { color: #79c0ff; }
+  .stat.deleted .count { color: #ff7b72; }
+
+  /* ===== Items ===== */
+  .items { padding: 18px 32px 22px; }
+  .item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 16px 14px 20px;
+    margin-bottom: 12px;
+    background: #181d29;
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  }
+  .item:last-child { margin-bottom: 0; }
+  .item::before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    bottom: -1px;
+    width: 3px;
+  }
+  .item.added::before { background: linear-gradient(180deg, #56d364 0%, #238636 100%); }
+  .item.updated::before { background: linear-gradient(180deg, #79c0ff 0%, #1f6feb 100%); }
+  .item.deleted::before { background: linear-gradient(180deg, #ff7b72 0%, #da3633 100%); }
+  .item-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    margin-right: 12px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+  .item.added .item-tag { background: rgba(63,185,80,0.14); color: #56d364; border: 1px solid rgba(63,185,80,0.4); }
+  .item.updated .item-tag { background: rgba(88,166,255,0.14); color: #79c0ff; border: 1px solid rgba(88,166,255,0.4); }
+  .item.deleted .item-tag { background: rgba(248,81,73,0.14); color: #ff7b72; border: 1px solid rgba(248,81,73,0.4); }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name {
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .item-version {
+    color: #8b949e;
+    font-size: 12px;
+    margin-top: 4px;
+    font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  }
+  .item-version .arrow { color: rgba(255,255,255,0.25); margin: 0 6px; }
+  .item-version .new { color: #79c0ff; font-weight: 700; }
+  .item-desc {
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    margin-top: 5px;
+    line-height: 1.6;
+  }
+  .item-publisher {
+    color: rgba(255,255,255,0.32);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    padding: 13px 32px 16px;
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+        <!-- biome-ignore lint/a11y/useHeadingContent: <日后处理> -->
+        <h1><!--title--></h1>
+      <div class="subtitle">KOISHI PLUGIN MARKET</div>
+      <div class="time"><!--time--></div>
+    </div>
+    <div class="stats">
+      <div class="stat added"><span class="dot"></span><span class="stat-label"><!--label-added--></span><span class="count"><!--added--></span></div>
+      <div class="stat updated"><span class="dot"></span><span class="stat-label"><!--label-updated--></span><span class="count"><!--updated--></span></div>
+      <div class="stat deleted"><span class="dot"></span><span class="stat-label"><!--label-deleted--></span><span class="count"><!--deleted--></span></div>
+    </div>
+    <div class="items"><!--items--></div>
+    <div class="footer"><!--footer--></div>
+  </div>
+</body>
+</html>

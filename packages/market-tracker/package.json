@@ -1,0 +1,72 @@
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "koishi-plugin-market-tracker",
+    "version": "1.4.1",
+    "description": "追踪 Koishi 插件市场更新并推送到指定群/频道",
+    "contributors": [
+        "Oppenheymu <oppenheymu@gmail.com>"
+    ],
+    "type": "module",
+    "main": "lib/index.cjs",
+    "module": "lib/index.mjs",
+    "types": "lib/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./lib/index.d.ts",
+            "development": "./src/index.ts",
+            "import": "./lib/index.mjs",
+            "require": "./lib/index.cjs",
+            "default": "./lib/index.cjs"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "lib"
+    ],
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Koishi-CE/tools.git",
+        "directory": "packages/market-tracker"
+    },
+    "bugs": {
+        "url": "https://github.com/Koishi-CE/tools/issues"
+    },
+    "homepage": "https://github.com/Koishi-CE/tools/tree/main/packages/market-tracker",
+    "keywords": [
+        "chatbot",
+        "koishi",
+        "plugin"
+    ],
+    "koishi": {
+        "description": {
+            "es": "Rastreador de actualizaciones del mercado de plugins para Koishi",
+            "fr": "Suivi des mises à jour du marché de plugins pour Koishi",
+            "ja": "Koishi 用プラグイン市場更新トラッカー",
+            "de": "Plugin-Markt-Update-Tracker für Koishi",
+            "ru": "Отслеживание обновлений рынка плагинов для Koishi",
+            "en": "Plugin Market Update Tracker for Koishi",
+            "zh": "追踪 Koishi 插件市场更新并推送到指定群/频道"
+        },
+        "service": {}
+    },
+    "scripts": {
+        "build": "tsdown",
+        "typecheck": "tsc --noEmit",
+        "lint": "biome lint .",
+        "format": "biome format --write .",
+        "check": "biome check . && tsc --noEmit",
+        "fix": "biome check --write . && tsc --noEmit"
+    },
+    "peerDependencies": {
+        "koishi": "^4.18.7",
+        "koishi-plugin-puppeteer": "^3.9.0"
+    },
+    "devDependencies": {
+        "@koishijs/registry": "^7.0.3",
+        "koishi": "^4.18.7"
+    }
+}

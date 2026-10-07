@@ -1,0 +1,109 @@
+# 发布链
+#
+# 触发：携带 changeset 的合并进入 main 后自动消费并发布；workflow_dispatch 作补发 /
+# 重跑逃生舱。concurrency 不取消进行中的运行——两个运行同时消费 changeset 会撞版本号。
+#
+# 单 job 顺序执行「消费 changeset → 构建 → 测试 → 推送版本提交 → 逐包发布」：
+# 构建与测试刻意排在推送之前，这样失败时 main 上不会留下「版本已升、包却没发出去」的提交。
+#
+# 前置配置见 docs/process/release.md 第 4 节：NPM_TOKEN（发布）与分支保护下的推送 token。
+#
+# 第三方 Action 用 major tag（`@v4`）；启用 CodeQL 的 unpinned-tag 规则后需钉 SHA。
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+    # 只有携带 changeset 的合并才值得跑；被消费的 changeset 以「删除」形式入库，
+    # 同样命中本过滤器（若推送方是 App token，那次推送会再触发一次本 workflow——
+    # 它消费不到 changeset，只跑 version 即空转退出）。
+    paths: [".changeset/**"]
+  workflow_dispatch:
+    inputs:
+      # changeset 一旦被消费，重跑就再也走不到发布（version 环无条目可消费 →
+      # changed=false）；置 true 可跳过 version 环、直接构建当前 main 交给发布步骤，
+      # 由 registry 比对决定哪些版本真的要发。
+      skip-version:
+        description: "跳过消费 changeset（补发 / 重跑时用）"
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  # 不可取消：两个运行同时消费 changeset 会撞版本号。
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: release (version / build / publish)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # 推送版本提交
+    steps:
+      # persist-credentials: false：默认行为会把 GITHUB_TOKEN 持久化到 .git/config，
+      # 与后面显式推送 URL 里的 token 争同一个 Authorization 头。
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+
+      - name: 消费 changeset（version）
+        id: version
+        if: ${{ !inputs.skip-version }}
+        run: |
+          bun run release version
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "无 changeset 可消费，后续步骤将跳过。"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 构建与测试跑在「版本已升」的这棵树上。
+      - name: 构建与测试
+        if: steps.version.outputs.changed == 'true' || inputs.skip-version
+        run: |
+          bun run release build
+          bun run release test
+
+      # 推送版本提交。token 经 env 传递（内联进 run 会把明文写进日志），推送用完整 URL
+      # 而非 git remote，并加 -c core.hooksPath=/dev/null：构建期代码被污染时可在
+      # .git/hooks/pre-push 里读到这个 token。
+      #
+      # 注意：若 main 开启了分支保护，`github.token` 会被保护规则以 GH013 拒绝，且它无法
+      # 被加入 bypass 名单（GitHub 的安全限制）——能进名单的只有 GitHub App token。
+      # 届时把下行换成 `${{ secrets.RELEASE_TOKEN }}` 并在仓库侧配好 App 凭据。
+      - name: 推送版本提交
+        if: steps.version.outputs.changed == 'true'
+        env:
+          TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(release): 消费 changeset 并更新版本"
+          git -c core.hooksPath=/dev/null push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+
+      - name: 配置 npm 认证
+        if: steps.version.outputs.changed == 'true' || inputs.skip-version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::缺少 NPM_TOKEN secret，无法发布（配置方式见 docs/process/release.md）"
+            exit 1
+          fi
+          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN" --location user
+
+      # 逐包发布：脚本先做依赖协议终局断言，再查 registry 跳过已发布版本，最后逐包
+      # npm publish --access public（幂等，重跑安全）。
+      - name: 逐包发布
+        if: steps.version.outputs.changed == 'true' || inputs.skip-version
+        run: bun run release publish

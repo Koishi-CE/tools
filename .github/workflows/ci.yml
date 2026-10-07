@@ -1,0 +1,67 @@
+# CI 门禁流水线
+#
+# 单个 gate job：安装 → 全量门禁 → 构建。
+#
+# 其中 `bun run check` 与本地门禁**逐字同源**（同一组命令），CI 不另立口径——
+# 两端不一致会出现「本地绿、CI 红」或反过来的假象。改动任一侧都要同步另一侧。
+#
+# 顺序依赖（隐性约束，别顺手重排）：当前**不需要** build 前置于 typecheck / test。
+# 根 tsconfig.json 的 paths 指向各包 src 源码（不是 lib 产物），测试也经同一套 paths
+# 解析到源码，故干净检出（没有 lib/）时 typecheck 与 test 都能过。一旦将来 paths 改指
+# `lib/*.d.ts`、或有测试去读真实产物，**必须**把 build 提到它们之前。
+#
+# 第三方 Action 用 major tag（`@v4`）：本仓未启用 CodeQL 的 `actions/unpinned-tag`
+# 规则。若将来启用（ruleset 的 code_scanning 规则会把未钉 SHA 算作阻塞项），需把下列
+# action 全部改成 commit SHA 并附 `# vX.Y.Z` 注释。
+#
+# Bun 版本不在此处硬编码：oven-sh/setup-bun 自动读根 package.json 的 packageManager。
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 同一分支 / PR 的旧跑自动取消，不占额度。
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: gate (check & build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      # CI 环境下 bun install 自动 frozen-lockfile（锁文件与 package.json 不一致即失败）。
+      - run: bun install
+
+      # 与本地 `bun run check` 同源。刻意**不**拆成逐段步骤：分段会让「改了 check 链
+      # 却忘了改 CI」这类漂移无声通过，同源调用则不可能漂移。
+      - name: 全量门禁（lint / typecheck / test / 自研五连）
+        run: bun run check
+
+      - name: 按包构建
+        run: bun run build
+
+      # 产物形态是门禁的一部分（exports 的 import/require 分流要靠这两份文件），
+      # 构建后复核一次，避免 tsdown 配置漂移导致发布了残缺的包。
+      - name: 复核构建产物
+        run: |
+          set -euo pipefail
+          for dir in packages/*; do
+            for file in index.cjs index.mjs index.d.ts; do
+              if [ ! -f "$dir/lib/$file" ]; then
+                echo "::error::$dir/lib/$file 缺失——tsdown 产物形态与 package.json 的 exports 不符"
+                exit 1
+              fi
+            done
+          done
+          echo "产物复核通过：packages/*/lib 均含 index.cjs / index.mjs / index.d.ts"

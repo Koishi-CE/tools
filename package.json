@@ -1,28 +1,39 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
-  "name": "@root/tools",
-  "version": "0.1.0",
-  "description": "一个 Koishi 插件集合",
-  "contributors": [
-    "Oppenheymu <oppenheymu@gmail.com>"
-  ],
-  "private": true,
-  "license": "MIT",
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "build": "bun run --filter './packages/*' build",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset version && bun run --filter './packages/*' build && changeset publish"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.5.10",
-    "@changesets/cli": "^2.31.1",
-    "@types/node": "^26.4.0",
-    "@typescript/native": "npm:typescript@7.0.2",
-    "tsdown": "^0.22.14"
-  }
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "@root/tools",
+    "version": "0.1.0",
+    "description": "面向通用 Koishi 宿主的工具型插件集合",
+    "contributors": [
+        "Oppenheymu <oppenheymu@gmail.com>"
+    ],
+    "private": true,
+    "license": "MIT",
+    "type": "module",
+    "packageManager": "bun@1.4.2",
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "bun run --filter './packages/*' build",
+        "lint": "biome check .",
+        "format": "biome format --write .",
+        "typecheck": "tsc -p tsconfig.json",
+        "test": "node --test \"packages/*/src/**/*.test.ts\"",
+        "check:packages": "bun tooling/checks/packages.ts",
+        "check:locales": "bun tooling/checks/locales.ts",
+        "check:docs-links": "bun tooling/checks/docs-links.ts",
+        "check:pr-templates": "bun tooling/checks/pr-templates.ts",
+        "check:spdx": "bun tooling/checks/spdx.ts",
+        "check": "bun run lint && bun run typecheck && bun run test && bun run check:locales && bun run check:packages && bun run check:docs-links && bun run check:pr-templates && bun run check:spdx",
+        "changeset": "changeset",
+        "release": "bun tooling/release/index.ts"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.5.10",
+        "@changesets/cli": "^2.31.1",
+        "@rollup/plugin-yaml": "^5.0.0",
+        "@types/node": "^26.4.0",
+        "@typescript/native": "npm:typescript@7.0.2",
+        "tsdown": "^0.22.14"
+    }
 }

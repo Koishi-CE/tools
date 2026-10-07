@@ -1,0 +1,16 @@
+templates:
+  - name: 缺陷修复
+    description: 修复既有功能的问题
+    body: bug_fix.md
+  - name: 新功能
+    description: 新增功能或新增插件包
+    body: feature.md
+  - name: 文档
+    description: 仅文档改动
+    body: docs.md
+  - name: 依赖与工具链
+    description: 依赖升级或工程配置调整
+    body: dependencies_tooling.md
+  - name: 其他
+    description: 不属于以上分类的改动
+    body: general.md

@@ -1,0 +1,20 @@
+commands:
+  market:
+    description: Plugin Market Info
+    usage: |
+      market - View plugin market overview
+      market <name> - View details of a specific plugin
+    messages:
+      overview: There are currently {0} plugins.
+      not-found: Plugin {0} not found.
+      detail: |-
+        {name} ({version})
+        {manifest.description.en || manifest.description.zh}
+
+market-tracker:
+  title: 📦 Plugin Market Updates
+  text-title: "[Plugin Market Updates]"
+  added: Added
+  updated: Updated
+  deleted: Removed
+  footer: "{0} changes in total · Powered by Koishi"

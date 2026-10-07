@@ -1,12 +1,17 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.5.10/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
     "vcs": {
         "enabled": true,
         "clientKind": "git",
         "useIgnoreFile": true
     },
     "files": {
-        "includes": ["packages/*/src/**"]
+        "includes": [
+            "packages/*/src/**",
+            "packages/*/tsdown.config.ts",
+            "tooling/**/*.ts",
+            "tsdown.config.ts"
+        ]
     },
     "formatter": {
         "indentStyle": "space",
@@ -23,7 +28,10 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true,
+            "preset": "recommended",
+            "complexity": {
+                "useLiteralKeys": "off"
+            },
             "nursery": {
                 "noFloatingPromises": "error"
             }
@@ -35,5 +43,17 @@
                 "organizeImports": "on"
             }
         }
-    }
+    },
+    "overrides": [
+        {
+            "includes": ["**/*.{spec,test}.*"],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "noNonNullAssertion": "off"
+                    }
+                }
+            }
+        }
+    ]
 }

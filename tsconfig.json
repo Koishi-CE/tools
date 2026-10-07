@@ -1,10 +1,11 @@
 {
-  "extends": "./tsconfig.base",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "koishi-plugin-tools-*": ["packages/*/src"],
-      "koishi-plugin-*": ["packages/*/src"]
+    "extends": "./tsconfig.base",
+    "include": ["packages/*/src"],
+    "files": ["types/yml.d.ts"],
+    "compilerOptions": {
+        "paths": {
+            "koishi-plugin-cleanscreen": ["./packages/clean-screen/src/index.ts"],
+            "koishi-plugin-market-tracker": ["./packages/market-tracker/src/index.ts"]
+        }
     }
-  }
 }

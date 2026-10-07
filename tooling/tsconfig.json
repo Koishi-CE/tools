@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026-present Oppenheymu and Koishi-CE contributors.
+
+// tooling 独立薄工程：仅供编辑器语言服务命中。tooling 不在任何门禁 typecheck 的
+// include 内（脚本均为直跑），沿用 base 的 types（node），打开文件即可直接以正确
+// 配置出诊断，不再闪默认配置的报错。
+{
+    "extends": "../tsconfig.base.json",
+    "include": ["**/*.ts"]
+}
